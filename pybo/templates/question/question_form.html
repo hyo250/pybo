@@ -1,0 +1,26 @@
+<!--질문등록 페이지-->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h5 class = "my-3 border-bottom pb-2"> 질문등록</h5>
+    <form method="post" class="post-form my-3">
+
+        {% for field,errors in form.errors.items() %}
+        <div class="alert alert-danger" role="alert">
+            <strong> {{ form[field].label }}</strong>: {{',' .join(errors)}}
+        </div>
+        {% endfor %}
+
+        <!--        question_form.py에 정의한 form임.-->
+        <!--        시크릿 키 적용-->
+        {{form.csrf_token}}
+        {{ form.subject.label}}
+        {{form.subject() }}
+        <p> </p>
+        {{ form.content.label}}
+        {{form.content() }}
+
+        <button type="submit" class="btn btn-primary">저장하기</button>
+    </form>
+</div>
+{% endblock%}
