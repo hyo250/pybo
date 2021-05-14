@@ -57,7 +57,7 @@ money=0
 for i in res['data']:
     money=money+i['price']*i['total']
 
-print(money)
+#print(money)
 
 
 def navermovie(moviename):
