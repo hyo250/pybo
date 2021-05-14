@@ -96,4 +96,4 @@ def navermovie(moviename):
     #print(title)
     return jsontemp
 
-print(navermovie("스파이럴"))
+#print(navermovie("스파이럴"))

@@ -52,7 +52,7 @@ def hello_pybo():
     result=Question.query.get(1)
     result.subject='파이보 정말 쉽지 않네'
     db.session.commit()
-    print(result)
+    #print(result)
 
     # q = Question(subject='pybo가 무엇인가요?', content='pybo에 대해서 알고 싶습니다. ', create_date=datetime.now())
     # a = Question(subject='python 재밌나요?', content='python에 대해서 알고 싶습니다. ', create_date=datetime.now())
