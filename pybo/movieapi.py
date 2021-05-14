@@ -42,7 +42,7 @@ def Mrank():
         imgurl.append(url['src'])
         # print(url['src'])
 
-    print(imgurl)
+    #print(imgurl)
 
     # print(imgresult)
 
@@ -50,6 +50,6 @@ def Mrank():
     for temp in moviedata:
         temp['img'] = imgurl[i]
         i+=1
-        print(temp)
+        #print(temp)
 
     return moviedata
