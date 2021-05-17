@@ -19,13 +19,14 @@ migrate.init_app(app,db)
 #2)
 from . import models
 #3)
-from .views import main_views, naver_views, question_views, answer_views, auth_views, naver_movie
+from .views import main_views, naver_views, question_views, answer_views, auth_views, naver_movie,chat_views
 app.register_blueprint(main_views.bp) #앱에다 등록시키는 이 과정이 있어야 함.
 app.register_blueprint(naver_views.bp) #naver.py에서도 bp=Blureprint라고 변수정의했어서 .bp
 app.register_blueprint(question_views.bp)
 app.register_blueprint(answer_views.bp)
 app.register_blueprint(auth_views.bp)
 app.register_blueprint(naver_movie.bp)
+app.register_blueprint(chat_views.bp)
 
 from .filter import format_datetime
 app.jinja_env.filters['datetime']=format_datetime
