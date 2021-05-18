@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, url_for
+from flask import Blueprint, render_template, url_for, request, jsonify
 from werkzeug.utils import redirect
 
 from pybo.models import Question, Answer, User
 from datetime import datetime
 from pybo import db #init.py에서 db=SQLAlchemy()
+from pybo.movieapi import Mrank
+from pybo.Naver_API import navermovie
 
 bp=Blueprint('main', __name__, url_prefix='/')
 
@@ -137,8 +139,55 @@ def hello_pybo():
     return 'Hello안녕, pybo!'
 #함수 이름들 겹치지 않게 주의. hello_pybo 위에 썼으니 밑에는 x
 
-
 @bp.route('/')
 def index():
    return redirect(url_for('question._list'))
 
+@bp.route('/webhook/', methods=['GET','POST'])
+def webhook():
+    print('웹훅')
+
+    req=request.get_json()
+    #print(req) #잘가져왔는지 확인용.
+    if req['queryResult']['intent']['displayName'] == 'movie ranking':
+        rankdata = Mrank()
+        result = ''
+        cnt = 1
+        for temp in rankdata:
+            result = result + str(cnt) + '위: ' + temp['title']
+            print(result)
+            if cnt == 3:
+                break
+            cnt += 1
+
+    elif req['queryResult']['intent']['displayName'] == 'movie info - search':
+        movie = navermovie(req['queryResult']['queryText']) #미나리라고 검색한 부분이 여기에 있음. 이걸 검색어로 navermovie함수에 넣어줌
+        #print(movie) #잘가져왔는지 확인용.
+        moviedata=movie['items'][0] #여기안에 우리가 필요한거 다있다. 젤 먼저 나오는 검색결과를 보여주려고 함.
+        #return {'fulfillmentText': '제목:' + moviedata['title']+'감독: '+moviedata['director']+ '출연진: '+moviedata['actor']+ '연도: ' +moviedata['pubDate']}
+        return movie_info(moviedata['image'], moviedata['title'], moviedata['link'],
+                          '감독:' + moviedata['director'] + ' 출연자: ' + moviedata['actor'])
+
+def movie_info(imgurl, title, link, subtitle):
+    response_json = jsonify(
+        fulfillment_text='영화바보',
+        fulfillment_messages=[
+            {
+                "payload": {
+                    "richContent": [[
+                        {
+                            "type": "image",
+                            "rawUrl": imgurl
+                        },
+                        {
+                            "type": "info",
+                            "title": title,
+                            "actionLink": link,
+                            "subtitle": subtitle
+                        }
+                    ]]
+                }
+            }
+        ]
+    )
+    return response_json
