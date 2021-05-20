@@ -5,7 +5,7 @@ from pybo.models import Question, Answer, User
 from datetime import datetime
 from pybo import db #init.py에서 db=SQLAlchemy()
 from pybo.movieapi import Mrank
-from pybo.Naver_API import navermovie
+from pybo.Naver_API import navermovie, navershop
 from pybo.weatherapi import get_wdata
 
 bp=Blueprint('main', __name__, url_prefix='/')
@@ -174,6 +174,35 @@ def webhook():
         weather=get_wdata(req['queryResult']['queryText'])
         #print(weather)
         return weather_info(weather)
+    elif req['queryResult']['intent']['displayName'] == 'naver shopping - search':
+        product=navershop(req['queryResult']['queryText'])
+        pdata=product['items'][0]
+        print(pdata)
+        return shopping_info(pdata['image'], pdata['title'],pdata['link'],pdata['lprice'])
+
+def shopping_info(imgurl, title, link, lprice):
+    response_json = jsonify(
+        fulfillment_text='쇼핑정보',
+        fulfillment_messages=[
+            {
+                "payload": {
+                    "richContent": [[
+                        {
+                            "type": "image",
+                            "rawUrl": imgurl
+                        },
+                        {
+                            "type": "info",
+                            "title": title,
+                            "actionLink": link,
+                            "subtitle": lprice,
+                        }
+                    ]]
+                }
+            }
+        ]
+    )
+    return response_json
 
 def weather_info(weather):
     strdata=''
@@ -209,7 +238,7 @@ def movie_info(imgurl, title, link, subtitle):
                             "type": "info",
                             "title": title,
                             "actionLink": link,
-                            "subtitle": subtitle
+                            "subtitle": subtitle,
                         }
                     ]]
                 }
@@ -217,3 +246,6 @@ def movie_info(imgurl, title, link, subtitle):
         ]
     )
     return response_json
+
+
+

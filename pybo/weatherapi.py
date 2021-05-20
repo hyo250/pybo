@@ -40,9 +40,9 @@ def get_wdata(cname):
         if cdata !={}: #cdata가 비어이지 않으면
             resultdata.append(cdata)
             if cname in cdata['지역']:
-                print(cdata)
+                #print(cdata)
                 return cdata
 
     return {} #if문에 해당하지 않아 데이터 못가져올경우 빈 딕셔너리 가져오게
 
-get_wdata('서울')
+#get_wdata('서울')
