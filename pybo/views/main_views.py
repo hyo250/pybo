@@ -175,29 +175,44 @@ def webhook():
         #print(weather)
         return weather_info(weather)
     elif req['queryResult']['intent']['displayName'] == 'naver shopping - search':
-        product=navershop(req['queryResult']['queryText'])
-        pdata=product['items'][0]
-        print(pdata)
-        return shopping_info(pdata['image'], pdata['title'],pdata['link'],pdata['lprice'])
+        result = navershop(req['queryResult']['queryText'])
+        items = result['items']
+        item_list = []
+        for item in items:
+            title = item['title']
+            link = item['link']
+            image = item['image']
+            lprice = item['lprice']
+            hprice = item['hprice']
+            if hprice == '':
+                hprice = lprice
+            item_dic = {'title': title, 'link': link, 'image': image, 'lprice': lprice, 'hprice': hprice}
+            item_list.append(item_dic)
+        return shop_info_with_links(item_list)
 
-def shopping_info(imgurl, title, link, lprice):
+def shop_info_with_links(item_list):
+    richContents = []
+    for item in item_list:
+        richContent = [
+            { # 이 부분 지우면 그림이 안나옴
+                "type": "image",
+                "rawUrl": item['image']
+            },
+            { # 이 부분 지우면 정보가 안나옴
+                "type": "info",
+                "title": item['title'].replace('<b>','').replace('</b>',''),
+                "actionLink": item['link'],
+                "subtitle": '최저가:' + item['lprice'] + ' 최고가:' + item['hprice']
+            }
+        ]
+        richContents.append(richContent)
+
     response_json = jsonify(
-        fulfillment_text='쇼핑정보',
+        fulfillment_text='네이버 쇼핑 상품 정보',
         fulfillment_messages=[
             {
                 "payload": {
-                    "richContent": [[
-                        {
-                            "type": "image",
-                            "rawUrl": imgurl
-                        },
-                        {
-                            "type": "info",
-                            "title": title,
-                            "actionLink": link,
-                            "subtitle": lprice,
-                        }
-                    ]]
+                    "richContent": richContents
                 }
             }
         ]
