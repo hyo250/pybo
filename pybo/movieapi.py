@@ -51,5 +51,4 @@ def Mrank():
         temp['img'] = imgurl[i]
         i+=1
         #print(temp)
-
     return moviedata

@@ -6,6 +6,7 @@ from datetime import datetime
 from pybo import db #init.py에서 db=SQLAlchemy()
 from pybo.movieapi import Mrank
 from pybo.Naver_API import navermovie
+from pybo.weatherapi import get_wdata
 
 bp=Blueprint('main', __name__, url_prefix='/')
 
@@ -145,7 +146,7 @@ def index():
 
 @bp.route('/webhook/', methods=['GET','POST'])
 def webhook():
-    print('웹훅')
+    print('웹훅') #이거나오면 이게 작동한다는 증거
 
     req=request.get_json()
     #print(req) #잘가져왔는지 확인용.
@@ -154,11 +155,12 @@ def webhook():
         result = ''
         cnt = 1
         for temp in rankdata:
-            result = result + str(cnt) + '위: ' + temp['title']
+            result = result + str(cnt) + '위: ' + temp['title']+"\n "
             print(result)
             if cnt == 3:
                 break
             cnt += 1
+        return {'fulfillmentText':result}
 
     elif req['queryResult']['intent']['displayName'] == 'movie info - search':
         movie = navermovie(req['queryResult']['queryText']) #미나리라고 검색한 부분이 여기에 있음. 이걸 검색어로 navermovie함수에 넣어줌
@@ -167,6 +169,30 @@ def webhook():
         #return {'fulfillmentText': '제목:' + moviedata['title']+'감독: '+moviedata['director']+ '출연진: '+moviedata['actor']+ '연도: ' +moviedata['pubDate']}
         return movie_info(moviedata['image'], moviedata['title'], moviedata['link'],
                           '감독:' + moviedata['director'] + ' 출연자: ' + moviedata['actor'])
+    elif req['queryResult']['intent']['displayName'] == 'weather info - city':
+        #print(req) 정보가 어디서 들어오는지 확인
+        weather=get_wdata(req['queryResult']['queryText'])
+        #print(weather)
+        return weather_info(weather)
+
+def weather_info(weather):
+    strdata=''
+    if '지역' in weather:
+        strdata+= weather['지역'] + "의 "
+    if '현재 일기' in weather and len(weather['현재 일기'])>1:
+        strdata += "현재 일기예보는 " + weather['현재 일기'] + "이고"
+    if '현재기온' in weather and len(weather['현재기온'])>1:
+        strdata += "현재 기온은 " + weather['현재기온'] + "도, "
+    if '일강수' in weather and len(weather['일강수'])>1:
+        strdata+= "일 강수량은" + weather['일강수']
+    strdata +=  "입니다."
+    response_json = jsonify(
+        fulfillment_text=strdata
+    )
+    return response_json
+
+#def movie_ranking(imgurl, title, link, subtitle):
+
 
 def movie_info(imgurl, title, link, subtitle):
     response_json = jsonify(
