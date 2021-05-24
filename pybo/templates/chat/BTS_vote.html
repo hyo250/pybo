@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+<df-messenger
+  intent="WELCOME"
+  chat-title="vote"
+  agent-id="23fe80a5-2b0a-490e-9657-0c5e904d164f"
+  language-code="ko"
+></df-messenger>
+{% endblock %}

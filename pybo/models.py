@@ -30,3 +30,6 @@ class pybo_User(db.Model):
     password=db.Column(db.String(200), nullable=False)
     email=db.Column(db.String(120),unique=True, nullable=False)
 
+class BTS_vote(db.Model):
+    name=db.Column(db.String(100), primary_key=True)
+    count=db.Column(db.Integer, nullable=False)

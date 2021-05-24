@@ -23,3 +23,6 @@ class UserLoginForm(FlaskForm):
 
 class NaverBookForm(FlaskForm):
     search=StringField('검색창', validators=[DataRequired()])
+
+class HelpForm(FlaskForm):
+    search=StringField('검색', validators=[DataRequired()])

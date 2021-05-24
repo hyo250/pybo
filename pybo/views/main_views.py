@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, url_for, request, jsonify
 from werkzeug.utils import redirect
 
-from pybo.models import Question, Answer, User
+from pybo.models import Question, Answer, User, BTS_vote
 from datetime import datetime
 from pybo import db #init.py에서 db=SQLAlchemy()
 from pybo.movieapi import Mrank
@@ -262,5 +262,50 @@ def movie_info(imgurl, title, link, subtitle):
     )
     return response_json
 
+############BTS vote##########
+@bp.route('/btsvote', methods=['GET','POST'])
+def btsvote():
+    print('---------------------BTS vote---------------------')
+    req = request.get_json()
+    print(req)
+    if req['queryResult']['intent']['displayName'] == 'BTS - vote':
+        bts_member = req['queryResult']['parameters']['bts-member']
 
+        voteresult=BTS_vote.query.get_or_404(bts_member)
+        print(voteresult.count)
+        voteresult.count+=1
+        db.session.commit()
+
+        strdata= str(bts_member)+"에게 투표하셨군요. 이용해주셔서 감사합니다!"
+        response_json=jsonify(
+            fullfillment_text=strdata
+        )
+        print('==========투표 결과: ', strdata)
+
+    elif req['queryResult']['intent']['displayName'] == 'vote-ranking':
+        vote_result = BTS_vote.query.order_by(BTS_vote.count.desc())
+        strdata=''
+        cnt=0
+
+        for temp in vote_result:
+            cnt+=1
+            strdata=strdata+str(cnt)+'위: '+temp.name+' , 총 '+str(temp.count)+'표    | ' + '\n'
+            if cnt ==3:
+                break
+
+        response_json = jsonify(
+            fullfillment_text=strdata
+        )
+        return {'fulfillmentText': strdata}
+    return response_json
+
+@bp.route('/tt')
+def tt():
+    bts_list=['진','슈가','지민','V','RM','정국','J-hope']
+    for b in bts_list:
+        vote=BTS_vote(name=b, count=0)
+        db.session.add(vote)
+
+    db.session.commit()
+    return redirect(url_for('main.index'))
 
