@@ -299,7 +299,7 @@ def btsvote():
         return {'fulfillmentText': strdata}
     return response_json
 
-@bp.route('/tt')
+@bp.route('set /tt')
 def tt():
     bts_list=['진','슈가','지민','V','RM','정국','J-hope']
     for b in bts_list:
